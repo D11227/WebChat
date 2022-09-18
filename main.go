@@ -9,13 +9,13 @@ import (
 )
 
 type Group struct {
-	Id		string	`json:"id"`
-	Members		[]*User	`json:"members"`
+	Id	  string  `json:"id"`
+	Members	  []*User `json:"members"`
 }
 
 type User struct {
-	Username	string	`json:"username"`
-	InLobby		bool	`json:"inLobby"`
+	Username  string `json:"username"`
+	InLobby	  bool	 `json:"inLobby"`
 }
 
 var (
@@ -30,9 +30,9 @@ var (
 	groups = make([]Group, 0)
 
 	messageTypeToHandler = map[string]func(*websocket.Conn, map[string]interface{}) {
-		"login": HandleLogin,
-		"create-group": HandleCreateGroup,
-		"join-group": HandleJoinGroup,
+		"login":	HandleLogin,
+		"create-group":	HandleCreateGroup,
+		"join-group":	HandleJoinGroup,
 	}
 )
 
@@ -77,8 +77,6 @@ func ChatHandler(w http.ResponseWriter, r *http.Request) {
 			for eachConn := range conns {
 				if err := eachConn.WriteJSON(data); err != nil {
 					fmt.Printf("Could not write to connection: deleting connection\n", err)
-					delete(conns, eachConn)
-					delete(userInfo, eachConn)
 					continue
 				}
 			}
@@ -105,7 +103,7 @@ func HandleCreateGroup(conn *websocket.Conn, data map[string]interface{}) {
 		panic(err)
 	}
 
-	getKeyByValue(userInfo, groups[len(groups) - 1].Members[0]).WriteJSON(map[string]interface{} {
+	getKeyByValue(userInfo, groups[len(groups) - 1].Members[0]).WriteJSON(map[string]string {
 		"what": "update-groups",
 		"groups": string(jsonGroups),
 	})
