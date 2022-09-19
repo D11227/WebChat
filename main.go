@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"encoding/json"
 	"github.com/gorilla/websocket"
 )
 
@@ -14,8 +13,8 @@ type Group struct {
 }
 
 type User struct {
-	Username  string `json:"username"`
-	InLobby	  bool	 `json:"inLobby"`
+	Username  string  `json:"username"`
+	InLobby	  bool	  `json:"inLobby"`
 }
 
 var (
@@ -35,15 +34,6 @@ var (
 		"join-group":	HandleJoinGroup,
 	}
 )
-
-func getKeyByValue(m map[*websocket.Conn]*User, user* User) *websocket.Conn {
-	for key, value := range m {
-		if user == value {
-			return key
-		}
-	}
-	return nil
-}
 
 func ChatHandler(w http.ResponseWriter, r *http.Request) {
 	upgrader.CheckOrigin = func(r *http.Request) bool { return true }
@@ -96,16 +86,10 @@ func HandleCreateGroup(conn *websocket.Conn, data map[string]interface{}) {
 		Id: data["id"].(string),
 		Members: []*User{ userInfo[conn] },
 	})
-
-	jsonGroups, err := json.Marshal(&groups)
-
-	if err != nil {
-		panic(err)
-	}
-
-	getKeyByValue(userInfo, groups[len(groups) - 1].Members[0]).WriteJSON(map[string]string {
-		"what": "update-groups",
-		"groups": string(jsonGroups),
+	
+	conn.WriteJSON(map[string]interface{} {
+		"what":	    "update-groups",
+		"groups":   groups,
 	})
 }
 

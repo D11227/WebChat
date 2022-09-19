@@ -5,7 +5,8 @@ ws.addEventListener("open", (e) => {
 });
 
 ws.addEventListener("message", (e) => {
-	console.log(e.data);
+	const data = JSON.parse(e.data);
+	console.log(data);
 });
 
 ws.addEventListener("close", (e) => {
