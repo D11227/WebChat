@@ -4,17 +4,20 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"sort"
+	"github.com/rs/xid"
 	"github.com/gorilla/websocket"
 )
 
 type Group struct {
-	Id	  string  `json:"id"`
-	Members	  []*User `json:"members"`
+	Id	  string		`json:"id"`
+	Members	  []*User		`json:"members"`
 }
 
 type User struct {
-	Username  string  `json:"username"`
-	InLobby	  bool	  `json:"inLobby"`
+	Id	  string		`json:"id"`
+	Username  string		`json:"username"`
+	Conn	  *websocket.Conn	`json:"conn"`
 }
 
 var (
@@ -32,26 +35,30 @@ var (
 		"login":	HandleLogin,
 		"create-group":	HandleCreateGroup,
 		"join-group":	HandleJoinGroup,
+		"leave-group":	HandleLeaveGroup,
 	}
 )
 
 func ChatHandler(w http.ResponseWriter, r *http.Request) {
 	upgrader.CheckOrigin = func(r *http.Request) bool { return true }
 	conn, err := upgrader.Upgrade(w, r, nil)
+
 	if err != nil {
 		panic(err)
 	}
+
+	fmt.Println("New client connected!")
 	
-	fmt.Println("New client connected!");
+	id := xid.New()
 	conns[conn] = true	
 	userInfo[conn] = &User{
+		Id: id.String(),
 		Username: "~",
-		InLobby: false,
+		Conn: conn,
 	}
 
 	go func(conn *websocket.Conn) {
 		for {
-			//var data Chat
 			var data map[string]interface{}
 			err := conn.ReadJSON(&data)
 
@@ -62,20 +69,13 @@ func ChatHandler(w http.ResponseWriter, r *http.Request) {
 				return
 			}	
 
-			messageTypeToHandler[data["what"].(string)](conn, data);
-
-			for eachConn := range conns {
-				if err := eachConn.WriteJSON(data); err != nil {
-					fmt.Printf("Could not write to connection: deleting connection\n", err)
-					continue
-				}
-			}
+			messageTypeToHandler[data["what"].(string)](conn, data)
 		}
 	}(conn)
 }
 
 func HandleLogin(conn *websocket.Conn, data map[string]interface{}) {
-	if (userInfo[conn].Username == "~") {
+	if userInfo[conn].Username == "~" {
 		userInfo[conn].Username = data["username"].(string)
 		fmt.Printf("User %v logged in.\n", userInfo[conn].Username)
 	}
@@ -94,7 +94,65 @@ func HandleCreateGroup(conn *websocket.Conn, data map[string]interface{}) {
 }
 
 func HandleJoinGroup(conn *websocket.Conn, data map[string]interface{}) {
+	index := sort.Search(len(groups), func(i int) bool {
+		return groups[i].Id == data["id"].(string)
+	})
 
+	if index >= len(groups) {
+		return
+	}
+
+	groups[index].Members = append(groups[index].Members, userInfo[conn])
+
+	for _, member := range groups[index].Members {
+		member.Conn.WriteJSON(map[string]interface{} {
+			"what":	    "update-groups",
+			"groups":   groups,
+		})
+	}
+
+}
+
+func HandleLeaveGroup(conn *websocket.Conn, data map[string]interface{}) {
+	index := sort.Search(len(groups), func(i int) bool {
+		return groups[i].Id == data["id"].(string)
+	})
+
+	if index >= len(groups) {
+		return
+	}
+
+	memberIndex := -1	
+	for i := range groups[index].Members {
+		if groups[index].Members[i].Id == userInfo[conn].Id {
+			memberIndex = i
+			break
+		}
+	}
+
+	if memberIndex == -1 {
+		return
+	}
+
+	groups[index].Members = append(groups[index].Members[:memberIndex], groups[index].Members[memberIndex + 1:]...)
+
+	if len(groups[index].Members) == 0 {
+		groups = append(groups[:index], groups[index + 1:]...)
+	}
+
+	if len(groups) == 0 {
+		conn.WriteJSON(map[string]interface{} {
+			"what":	    "update-groups",
+			"groups":   groups,
+		})
+	} else {
+		for _, member := range groups[index].Members {
+			member.Conn.WriteJSON(map[string]interface{} {
+				"what":	    "update-groups",
+				"groups":   groups,
+			})
+		}
+	}
 }
 
 func main() {
