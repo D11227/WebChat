@@ -134,7 +134,10 @@ func HandleLeaveGroup(conn *websocket.Conn, data map[string]interface{}) {
 		return
 	}
 
-	groups[index].Members = append(groups[index].Members[:memberIndex], groups[index].Members[memberIndex + 1:]...)
+	groups[index].Members = append(
+		groups[index].Members[:memberIndex],
+		groups[index].Members[memberIndex + 1:]...
+	)
 
 	if len(groups[index].Members) == 0 {
 		groups = append(groups[:index], groups[index + 1:]...)
