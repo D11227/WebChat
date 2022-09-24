@@ -3,35 +3,85 @@
 	<head>
 		<title>Chat Realtime</title>
 		<link rel="stylesheet" href="./styles/style.css">
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
 	</head>
 	<body>
-		<!-- <div class="login">
+		<div class="login" id="login-screen">
 			<h1>LOGIN</h1>
-			<input type="text" placeholder="Username..."/>
+			<input id="username" type="text" placeholder="Username..."/>
 			<br/>
-			<button>Submit</button>
-		</div> -->
+			<button id="login-btn">Submit</button>
+		</div>
 	
-		<div class="chat">
+		<div class="chat" id="chat-screen" style="display: none">
 			<div class="left-side">
 				<div class="title">
 					<h2>Chat</h2>
-					<span>+</span>
+					<span id="open-join-modal">
+						<i class="fas fa-user-plus"></i>
+					</span>
+
+					<span id="open-create-modal">
+						<i class="fas fa-plus"></i>
+					</span>
 				</div>
+				<ul id="groups-list">
+					<!--<a href="#">
+						<div class="group">
+							<h3>Channel 1</h3>
+							<p>You: fuck up everybodyhere...</p>
+						</div>
+					</a>-->
+				</ul>	
 			</div>
 			<div class="right-side">
 				<div class="title">
 					<h2>#Channel 1</h2>
 				</div>
 				<div class="message">
-					
-					<div class="input">
-						<input type="text" placeholder="Message..."/>
-					</div>
+					<ul>
+						<!--<div class="user-message">
+							<img class="avatar" src="https://imgs.search.brave.com/Eof567moGQm9PScf2aA1bKv3c-1llGe1D_hw0mB31RQ/rs:fit:280:280:1/g:ce/aHR0cHM6Ly9hdmF0/YXJzMi5naXRodWJ1/c2VyY29udGVudC5j/b20vdS8xOTY1MTA2/P3M9MjgwJnY9NA"/>
+							<div class="content">
+								<div class="username">
+									<p>Silverboss</p>
+								</div>
+								<p>We are Vietnamese</p>
+								<p>123</p>
+							</div>	
+						</div>-->
+					</ul>	
+				</div>
+				<div class="input">
+					<input type="text" placeholder="Message..."/>
 				</div>
 			</div>
 		</div>
 
-		<script src="./scripts/index.js"></script>
+		<div class="popup center" id="join-modal">
+			<div class="title">
+				<h3>JOIN GROUP</h3>
+			</div>
+			<div class="content">
+				<input id="group-id" type="text" placeholder="ID..."/>
+				<button id="join-btn">Join</button>
+			</div>
+		</div>
+
+		<div class="popup center" id="create-modal">
+			<div class="title">
+				<h3>CREATE GROUP</h3>
+			</div>
+			<div class="content">
+				<input id="group-name" type="text" placeholder="Group's name..."/>
+				<button id="create-btn">Create</button>
+			</div>
+		</div>
+	
+		<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+		<script src="https://kit.fontawesome.com/241cc3e7bb.js" crossorigin="anonymous"></script>
+		<script src="./scripts/Network.js"></script>
+		<script src="./scripts/UI.js"></script>
 	</body>
 </html>

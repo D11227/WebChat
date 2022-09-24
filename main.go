@@ -11,6 +11,7 @@ import (
 
 type Group struct {
 	Id	  string		`json:"id"`
+	Name	  string		`json:"name"`
 	Members	  []*User		`json:"members"`
 }
 
@@ -82,14 +83,17 @@ func HandleLogin(conn *websocket.Conn, data map[string]interface{}) {
 }
 
 func HandleCreateGroup(conn *websocket.Conn, data map[string]interface{}) {
-	groups = append(groups, Group{
+	newGroup := Group{
 		Id: data["id"].(string),
+		Name: data["name"].(string),
 		Members: []*User{ userInfo[conn] },
-	})
+	}
+
+	groups = append(groups, newGroup)
 	
 	conn.WriteJSON(map[string]interface{} {
-		"what":	    "update-groups",
-		"groups":   groups,
+		"what":	    "update-group",
+		"group":   newGroup,
 	})
 }
 
@@ -99,6 +103,10 @@ func HandleJoinGroup(conn *websocket.Conn, data map[string]interface{}) {
 	})
 
 	if index >= len(groups) {
+		conn.WriteJSON(map[string]string {
+			"what":	    "error",
+			"content":  "Group not found!",
+		})
 		return
 	}
 
@@ -106,8 +114,8 @@ func HandleJoinGroup(conn *websocket.Conn, data map[string]interface{}) {
 
 	for _, member := range groups[index].Members {
 		member.Conn.WriteJSON(map[string]interface{} {
-			"what":	    "update-groups",
-			"groups":   groups,
+			"what":	    "update-group",
+			"group":    groups[index],
 		})
 	}
 
@@ -118,7 +126,7 @@ func HandleLeaveGroup(conn *websocket.Conn, data map[string]interface{}) {
 		return groups[i].Id == data["id"].(string)
 	})
 
-	if index >= len(groups) {
+	if index >= len(groups) {	
 		return
 	}
 
@@ -141,20 +149,14 @@ func HandleLeaveGroup(conn *websocket.Conn, data map[string]interface{}) {
 
 	if len(groups[index].Members) == 0 {
 		groups = append(groups[:index], groups[index + 1:]...)
-	}
-
-	if len(groups) == 0 {
-		conn.WriteJSON(map[string]interface{} {
-			"what":	    "update-groups",
-			"groups":   groups,
-		})
 	} else {
 		for _, member := range groups[index].Members {
 			member.Conn.WriteJSON(map[string]interface{} {
-				"what":	    "update-groups",
-				"groups":   groups,
+				"what":	    "update-group",
+				"group":    groups[index],
 			})
 		}
+
 	}
 }
 
