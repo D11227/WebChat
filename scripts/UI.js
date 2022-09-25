@@ -3,6 +3,9 @@ const loginScreen = document.getElementById('login-screen');
 const chatScreen = document.getElementById('chat-screen');
 const joinBtn = document.getElementById('join-btn');
 const createBtn = document.getElementById('create-btn');
+const copyBtn = document.getElementById('copy-btn');
+const closeBtns = document.getElementsByClassName('close-btn');
+const copyToClipboardBtn = document.getElementById('copy-clipboard-btn');
 
 const uid = () => Date.now().toString(36) + Math.random().toString(36).substr(2);
 
@@ -24,6 +27,10 @@ toastr.options = {
 	"hideMethod": "fadeOut"
 }
 
+Array.from(document.getElementsByClassName('close-btn')).map(x => x.addEventListener('click', function() {
+	this.parentNode.parentNode.classList.toggle('active');
+}));
+
 document.getElementById('login-btn').addEventListener('click', () => {
 	if (username == "") return;
 	
@@ -43,17 +50,34 @@ document.getElementById("open-create-modal").addEventListener("click", () => {
 });
 
 joinBtn.addEventListener('click', () => {
-	const id = document.getElementById('group-id').value;
-	Network.joinGroup(id);
+	const id = document.getElementById('group-id');
+	Network.joinGroup(id.value);
+	id.value = "";
 	document.getElementById("join-modal").classList.toggle("active");
 });
 
 createBtn.addEventListener('click', () => {
-	const name = document.getElementById('group-name').value;
+	const name = document.getElementById('group-name');
 	const id = uid();
-	Network.createGroup(id, name);
+	Network.createGroup(id, name.value);
+	name.value = "";
 	document.getElementById("create-modal").classList.toggle("active");
 });
+
+copyBtn.addEventListener('click', () => {
+	document.getElementById('copy-modal').classList.toggle('active');
+});
+
+copyToClipboardBtn.addEventListener('click', () => {
+	document.getElementById('copyfield').style.background = '#3BA55D';
+	copyToClipboardBtn.style.background = '#3BA55D';
+	navigator.clipboard.writeText(currentGroup.id);
+
+	setTimeout(() => {
+		document.getElementById('copyfield').style.background = '#4752C4';
+		copyToClipboardBtn.style.background = '#4752C4';
+	}, 3000);
+})
 
 function updateGroups() {
 	let html = '';
@@ -64,6 +88,9 @@ function updateGroups() {
 				<div class="group">
 					<h3>${groups[id].name}</h3>
 					<p>No message</p>
+					<span>
+						<i class="fas fa-minus"></i>
+					</span>
 				</div>
 			</a>
 		`;	
@@ -75,6 +102,10 @@ function joinGroup(id) {
 	currentGroup = groups[id];
 	Array.from(document.getElementsByClassName('group_id')).map(x => x.children[0].classList.remove('current_group'));
 	document.getElementById(`group_${id}`).children[0].classList.add('current_group');
+	
+	document.getElementById('current_group_name').innerText = currentGroup.name;
+	document.getElementById('link').value = currentGroup.id;
+	document.getElementById('group-name-invite').innerText = currentGroup.name;
 }
 
 window.onbeforeunload = function() {

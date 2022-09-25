@@ -25,18 +25,14 @@
 						<i class="fas fa-plus"></i>
 					</span>
 				</div>
-				<ul id="groups-list">
-					<!--<a href="#">
-						<div class="group">
-							<h3>Channel 1</h3>
-							<p>You: fuck up everybodyhere...</p>
-						</div>
-					</a>-->
-				</ul>	
+				<ul id="groups-list"></ul>	
 			</div>
 			<div class="right-side">
 				<div class="title">
-					<h2>#Channel 1</h2>
+					<h2>#<b id="current_group_name">Channel</b></h2>
+					<span id="copy-btn">
+						<i class="fas fa-copy"></i>
+					</span>
 				</div>
 				<div class="message">
 					<ul>
@@ -50,7 +46,7 @@
 								<p>123</p>
 							</div>	
 						</div>-->
-					</ul>	
+					</ul>
 				</div>
 				<div class="input">
 					<input type="text" placeholder="Message..."/>
@@ -60,23 +56,58 @@
 
 		<div class="popup center" id="join-modal">
 			<div class="title">
-				<h3>JOIN GROUP</h3>
+				<span class="close-btn">
+					<svg class="closeIcon-11LhXr" aria-hidden="true" role="img" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M18.4 4L12 10.4L5.6 4L4 5.6L10.4 12L4 18.4L5.6 20L12 13.6L18.4 20L20 18.4L13.6 12L20 5.6L18.4 4Z"></path></svg>
+				</span>
 			</div>
 			<div class="content">
-				<input id="group-id" type="text" placeholder="ID..."/>
-				<button id="join-btn">Join</button>
+				<h3>Join group</h3>
+				<div class="copyfield">
+					<input type="text" id="group-id" placeholder="Group's ID..."/>
+					<span id="join-btn">
+						<i class="fas fa-user-plus"></i>
+					</span>
+				</div>
+				<p>Paste the id of your friend's group and join the group.</p>
 			</div>
 		</div>
 
 		<div class="popup center" id="create-modal">
 			<div class="title">
-				<h3>CREATE GROUP</h3>
+				<span class="close-btn">
+					<svg class="closeIcon-11LhXr" aria-hidden="true" role="img" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M18.4 4L12 10.4L5.6 4L4 5.6L10.4 12L4 18.4L5.6 20L12 13.6L18.4 20L20 18.4L13.6 12L20 5.6L18.4 4Z"></path></svg>
+				</span>
 			</div>
 			<div class="content">
-				<input id="group-name" type="text" placeholder="Group's name..."/>
-				<button id="create-btn">Create</button>
+				<h3>Create new group</h3>
+				<div class="copyfield">
+					<input type="text" id="group-name" placeholder="Group's name..."/>
+					<span id="create-btn">
+						<i class="fas fa-plus"></i>
+					</span>
+				</div>
+				<p>Let's create new group, so you can chat with your friends.</p>
 			</div>
 		</div>
+
+		<div class="popup center" id="copy-modal">
+			<div class="title">
+				<span class="close-btn">
+					<svg class="closeIcon-11LhXr" aria-hidden="true" role="img" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M18.4 4L12 10.4L5.6 4L4 5.6L10.4 12L4 18.4L5.6 20L12 13.6L18.4 20L20 18.4L13.6 12L20 5.6L18.4 4Z"></path></svg>
+				</span>
+			</div>
+			<div class="content">
+				<h3>Invite friends to <b id="group-name-invite">group</b></h3>
+				<div class="copyfield" id="copyfield">
+					<input id="link" value="" readonly/>
+					<span id="copy-clipboard-btn">
+						<i class="fas fa-copy"></i>
+					</span>
+				</div>
+				<p>Copy the ID and send this to your friends to join the group.</p>
+			</div>
+		</div>
+
 	
 		<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>

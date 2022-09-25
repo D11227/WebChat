@@ -43,7 +43,6 @@ ws.addEventListener("message", (e) => {
 
 	if (data.what == 'update-group') {
 		groups[data.group.id] = data.group;
-
 		updateGroups();
 	}
 	else if (data.what == "error") {
