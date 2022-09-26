@@ -6,6 +6,7 @@ const createBtn = document.getElementById('create-btn');
 const copyBtn = document.getElementById('copy-btn');
 const closeBtns = document.getElementsByClassName('close-btn');
 const copyToClipboardBtn = document.getElementById('copy-clipboard-btn');
+const inputMessage = document.getElementById('input-message');
 
 const uid = () => Date.now().toString(36) + Math.random().toString(36).substr(2);
 
@@ -27,7 +28,7 @@ toastr.options = {
 	"hideMethod": "fadeOut"
 }
 
-Array.from(document.getElementsByClassName('close-btn')).map(x => x.addEventListener('click', function() {
+Array.from(closeBtns).map(x => x.addEventListener('click', function() {
 	this.parentNode.parentNode.classList.toggle('active');
 }));
 
@@ -51,6 +52,8 @@ document.getElementById("open-create-modal").addEventListener("click", () => {
 
 joinBtn.addEventListener('click', () => {
 	const id = document.getElementById('group-id');
+	if (id.value == "") return;
+
 	Network.joinGroup(id.value);
 	id.value = "";
 	document.getElementById("join-modal").classList.toggle("active");
@@ -58,6 +61,8 @@ joinBtn.addEventListener('click', () => {
 
 createBtn.addEventListener('click', () => {
 	const name = document.getElementById('group-name');
+	if (name.value == "") return;
+
 	const id = uid();
 	Network.createGroup(id, name.value);
 	name.value = "";
@@ -77,17 +82,30 @@ copyToClipboardBtn.addEventListener('click', () => {
 		document.getElementById('copyfield').style.background = '#4752C4';
 		copyToClipboardBtn.style.background = '#4752C4';
 	}, 3000);
-})
+});
+
+inputMessage.addEventListener('keyup', (e) => {
+	if (e.keyCode == 13 && currentGroup.id != undefined) {
+		const msg = inputMessage.value;
+		inputMessage.value = '';
+		if (msg == "") return;
+		
+		Network.sendMessage(msg);
+	}
+});
 
 function updateGroups() {
 	let html = '';
 	const groupsList = document.getElementById('groups-list');
 	Object.keys(groups).map(id => {
+		const lastMessage = (messages[id].slice(-1).length)
+				    ? `${messages[id].slice(-1)[0].username}: ${messages[id].slice(-1)[0].msg}`
+			            : 'No message';
 		html += `
 			<a href="#" onclick="joinGroup('${id}')" id="group_${id}" class="group_id">
 				<div class="group">
 					<h3>${groups[id].name}</h3>
-					<p>No message</p>
+					<p>${lastMessage}</p>
 					<span>
 						<i class="fas fa-minus"></i>
 					</span>
@@ -98,8 +116,28 @@ function updateGroups() {
 	groupsList.innerHTML = html;
 }
 
+function updateMessages() {
+	let html = '';
+	const messagesList = document.getElementById('messages-list');
+	messages[currentGroup.id].map(msg => {
+		html += `
+			<div class="user-message">
+				<img class="avatar" src="https://imgs.search.brave.com/Eof567moGQm9PScf2aA1bKv3c-1llGe1D_hw0mB31RQ/rs:fit:280:280:1/g:ce/aHR0cHM6Ly9hdmF0/YXJzMi5naXRodWJ1/c2VyY29udGVudC5j/b20vdS8xOTY1MTA2/P3M9MjgwJnY9NA"/>
+				<div class="content">
+					<div class="username">
+						<p>${msg.username}</p>
+					</div>
+				<p>${msg.msg}</p>
+				</div>	
+			</div>
+		`;
+	});
+	messagesList.innerHTML = html;
+}
+
 function joinGroup(id) {
 	currentGroup = groups[id];
+	updateMessages();
 	Array.from(document.getElementsByClassName('group_id')).map(x => x.children[0].classList.remove('current_group'));
 	document.getElementById(`group_${id}`).children[0].classList.add('current_group');
 	

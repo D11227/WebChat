@@ -30,6 +30,10 @@ const Network = {
 
 		delete groups[id];
 		delete messages[id];
+	},
+
+	sendMessage: function(msg) {
+		Network.send({what: "send-message", id: currentGroup.id, msg: msg, username: myUsername});
 	}
 };
 
@@ -42,11 +46,21 @@ ws.addEventListener("message", (e) => {
 	console.log(data);
 
 	if (data.what == 'update-group') {
+		if (!groups[data.group.id])
+			messages[data.group.id] = [];
 		groups[data.group.id] = data.group;
 		updateGroups();
 	}
 	else if (data.what == "error") {
 		toastr.error(data.content);
+	}
+	else if (data.what == "update-message") {
+		messages[currentGroup.id].push({
+			msg: data.msg,
+			username: data.username
+		});
+		updateMessages();
+		updateGroups();
 	}
 });
 

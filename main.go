@@ -37,6 +37,7 @@ var (
 		"create-group":	HandleCreateGroup,
 		"join-group":	HandleJoinGroup,
 		"leave-group":	HandleLeaveGroup,
+		"send-message":	HandleSendMessage,
 	}
 )
 
@@ -118,7 +119,6 @@ func HandleJoinGroup(conn *websocket.Conn, data map[string]interface{}) {
 			"group":    groups[index],
 		})
 	}
-
 }
 
 func HandleLeaveGroup(conn *websocket.Conn, data map[string]interface{}) {
@@ -158,6 +158,29 @@ func HandleLeaveGroup(conn *websocket.Conn, data map[string]interface{}) {
 		}
 
 	}
+}
+
+func HandleSendMessage(conn *websocket.Conn, data map[string]interface{}) {
+	index := sort.Search(len(groups), func(i int) bool {
+		return groups[i].Id == data["id"].(string)
+	})
+
+	if index >= len(groups) {
+		conn.WriteJSON(map[string]string {
+			"what":	    "error",
+			"content":  "Group not found!",
+		})
+		return
+	}
+
+	for _, member := range groups[index].Members {
+		member.Conn.WriteJSON(map[string]string {
+			"what":		"update-message",
+			"msg":		data["msg"].(string),
+			"username":	data["username"].(string),
+		})
+	}
+
 }
 
 func main() {

@@ -153,7 +153,6 @@ button:hover {
 .user-message {
 	width: 100%;
 	display: flex;
-	margin-bottom: 30px;
 	padding: 10px;
 }
 
@@ -246,7 +245,7 @@ button:hover {
 .popup p {
 	text-align: center;
 	color: #5B5E63;
-	margin-top: 15px;
+	margin-top: 25px;
 }
 
 .popup .close {
