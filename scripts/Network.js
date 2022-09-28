@@ -1,6 +1,7 @@
 const ws = new WebSocket("ws://localhost:8080/chat");
 
 var myUsername = null;
+var myId = null;
 var currentGroup = null;
 var groups = {};
 var messages = {};
@@ -33,7 +34,7 @@ const Network = {
 	},
 
 	sendMessage: function(msg) {
-		Network.send({what: "send-message", id: currentGroup.id, msg: msg, username: myUsername});
+		Network.send({what: "send-message", id: currentGroup.id, userId: myId, msg: msg, username: myUsername});
 	}
 };
 
@@ -45,19 +46,24 @@ ws.addEventListener("message", (e) => {
 	const data = JSON.parse(e.data);
 	console.log(data);
 
-	if (data.what == 'update-group') {
+	if (data.what == 'update-profile') {
+		myId = data.id;	
+	}
+	else if (data.what == 'update-group') {
 		if (!groups[data.group.id])
 			messages[data.group.id] = [];
 		groups[data.group.id] = data.group;
 		updateGroups();
 	}
 	else if (data.what == "error") {
+		Network.leaveGroup(data.id);
 		toastr.error(data.content);
 	}
 	else if (data.what == "update-message") {
 		messages[currentGroup.id].push({
 			msg: data.msg,
-			username: data.username
+			username: data.username,
+			userId: data.id
 		});
 		updateMessages();
 		updateGroups();

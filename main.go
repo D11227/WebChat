@@ -80,6 +80,10 @@ func HandleLogin(conn *websocket.Conn, data map[string]interface{}) {
 	if userInfo[conn].Username == "~" {
 		userInfo[conn].Username = data["username"].(string)
 		fmt.Printf("User %v logged in.\n", userInfo[conn].Username)
+		conn.WriteJSON(map[string]string {
+			"what":	  "update-profile",
+			"id":	  userInfo[conn].Id,
+		})
 	}
 }
 
@@ -93,7 +97,7 @@ func HandleCreateGroup(conn *websocket.Conn, data map[string]interface{}) {
 	groups = append(groups, newGroup)
 	
 	conn.WriteJSON(map[string]interface{} {
-		"what":	    "update-group",
+		"what":	   "update-group",
 		"group":   newGroup,
 	})
 }
@@ -169,6 +173,7 @@ func HandleSendMessage(conn *websocket.Conn, data map[string]interface{}) {
 		conn.WriteJSON(map[string]string {
 			"what":	    "error",
 			"content":  "Group not found!",
+			"id": data["id"].(string),
 		})
 		return
 	}
@@ -178,6 +183,7 @@ func HandleSendMessage(conn *websocket.Conn, data map[string]interface{}) {
 			"what":		"update-message",
 			"msg":		data["msg"].(string),
 			"username":	data["username"].(string),
+			"id":		data["userId"].(string),
 		})
 	}
 

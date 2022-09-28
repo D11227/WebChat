@@ -21,6 +21,10 @@
 	background: #2E3338;
 }
 
+li {
+	list-style-type: none;
+}
+
 body {
 	display: flex;
 	flex-direction: column;
@@ -153,7 +157,7 @@ button:hover {
 .user-message {
 	width: 100%;
 	display: flex;
-	padding: 10px;
+	padding: 2px;
 }
 
 .user-message:hover {

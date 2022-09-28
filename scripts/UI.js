@@ -99,7 +99,7 @@ function updateGroups() {
 	const groupsList = document.getElementById('groups-list');
 	Object.keys(groups).map(id => {
 		const lastMessage = (messages[id].slice(-1).length)
-				    ? `${messages[id].slice(-1)[0].username}: ${messages[id].slice(-1)[0].msg}`
+				    ? `${messages[id].slice(-1)[0].username}: ${messages[id].slice(-1)[0].msg.slice(0, 25) + '...'}`
 			            : 'No message';
 		html += `
 			<a href="#" onclick="joinGroup('${id}')" id="group_${id}" class="group_id">
@@ -119,17 +119,22 @@ function updateGroups() {
 function updateMessages() {
 	let html = '';
 	const messagesList = document.getElementById('messages-list');
-	messages[currentGroup.id].map(msg => {
+	messages[currentGroup.id].map((msg, i, array) => {
+		let a = `<img class="avatar" src="https://imgs.search.brave.com/Eof567moGQm9PScf2aA1bKv3c-1llGe1D_hw0mB31RQ/rs:fit:280:280:1/g:ce/aHR0cHM6Ly9hdmF0/YXJzMi5naXRodWJ1/c2VyY29udGVudC5j/b20vdS8xOTY1MTA2/P3M9MjgwJnY9NA"/>`; 
+		if (array[i - 1] != undefined) var sameId = array[i - 1].userId == msg.userId;	
+		if (sameId)
+			a = '';
+
 		html += `
-			<div class="user-message">
-				<img class="avatar" src="https://imgs.search.brave.com/Eof567moGQm9PScf2aA1bKv3c-1llGe1D_hw0mB31RQ/rs:fit:280:280:1/g:ce/aHR0cHM6Ly9hdmF0/YXJzMi5naXRodWJ1/c2VyY29udGVudC5j/b20vdS8xOTY1MTA2/P3M9MjgwJnY9NA"/>
-				<div class="content">
-					<div class="username">
+			<li><div class="user-message" ${(!sameId && array[i - 1] != undefined) ? `style="margin-top: 10px"` : ''}>
+				${a}
+				<div class="content" ${(sameId) ? `style="margin-left: 55px"` : ''}>
+					${(!sameId) ? `<div class="username">
 						<p>${msg.username}</p>
-					</div>
+					</div>` : ''}
 				<p>${msg.msg}</p>
 				</div>	
-			</div>
+			</div></li>
 		`;
 	});
 	messagesList.innerHTML = html;
