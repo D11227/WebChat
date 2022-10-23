@@ -1,6 +1,8 @@
 const username = document.getElementById('username');
 const loginScreen = document.getElementById('login-screen');
 const chatScreen = document.getElementById('chat-screen');
+const avatar = document.getElementById('myAvatar');
+const name = document.getElementById('myName');
 const joinBtn = document.getElementById('join-btn');
 const createBtn = document.getElementById('create-btn');
 const copyBtn = document.getElementById('copy-btn');
@@ -36,8 +38,11 @@ document.getElementById('login-btn').addEventListener('click', () => {
 	if (username == "") return;
 	
 	myUsername = username.value;
+	myAvatar = new NameToAvatar(myUsername).draw();
 	Network.login();
 	
+	avatar.src = myAvatar;
+	name.innerText = myUsername;
 	loginScreen.style.display = "none";
 	chatScreen.style.display = "flex";
 });
@@ -99,7 +104,7 @@ function updateGroups() {
 	const groupsList = document.getElementById('groups-list');
 	Object.keys(groups).map(id => {
 		const lastMessage = (messages[id].slice(-1).length)
-				    ? `${messages[id].slice(-1)[0].username}: ${messages[id].slice(-1)[0].msg.slice(0, 25) + '...'}`
+			? `${messages[id].slice(-1)[0].username}: ${(messages[id].slice(-1)[0].type == "welcome") ? "Just joined!" : messages[id].slice(-1)[0].msg}`
 			            : 'No message';
 		html += `
 			<a href="#" onclick="joinGroup('${id}')" id="group_${id}" class="group_id">
@@ -120,10 +125,11 @@ function updateMessages() {
 	let html = '';
 	const messagesList = document.getElementById('messages-list');
 	messages[currentGroup.id].map((msg, i, array) => {
-		let a = `<img class="avatar" src="https://imgs.search.brave.com/Eof567moGQm9PScf2aA1bKv3c-1llGe1D_hw0mB31RQ/rs:fit:280:280:1/g:ce/aHR0cHM6Ly9hdmF0/YXJzMi5naXRodWJ1/c2VyY29udGVudC5j/b20vdS8xOTY1MTA2/P3M9MjgwJnY9NA"/>`; 
-		if (array[i - 1] != undefined) var sameId = array[i - 1].userId == msg.userId;	
-		if (sameId)
-			a = '';
+		let a = `<img class="avatar" src="${msg.avatar}"/>`, displayMessage; 
+		if (array[i - 1] != undefined) var sameId = array[i - 1].userId == msg.userId;
+		if (sameId) a = '';
+		if (msg.type == "welcome") displayMessage = `<img style="width: 100px; height: 100px;"src="${msg.msg}"/>`;
+		else displayMessage = `<p>${msg.msg}</p>`;
 
 		html += `
 			<li><div class="user-message" ${(!sameId && array[i - 1] != undefined) ? `style="margin-top: 10px"` : ''}>
@@ -132,7 +138,7 @@ function updateMessages() {
 					${(!sameId) ? `<div class="username">
 						<p>${msg.username}</p>
 					</div>` : ''}
-				<p>${msg.msg}</p>
+				${displayMessage}
 				</div>	
 			</div></li>
 		`;
@@ -148,7 +154,7 @@ function joinGroup(id) {
 	
 	document.getElementById('current_group_name').innerText = currentGroup.name;
 	document.getElementById('link').value = currentGroup.id;
-	document.getElementById('group-name-invite').innerText = currentGroup.name;
+	document.getElementById('group-name-invite').innerText = `"${currentGroup.name}"`;
 }
 
 window.onbeforeunload = function() {

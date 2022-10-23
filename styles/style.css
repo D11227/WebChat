@@ -33,7 +33,7 @@ body {
 	min-height: 100vh;
 	margin: 0;
 	background: #36393F;
-	overflow-y: hidden;
+	overflow: hidden;
 }
 
 input {
@@ -116,7 +116,33 @@ button:hover {
 	border-radius: 20%;
 	background: #3BA55D;
 	color: white;
-} 
+}
+
+.chat .left-side #groups-list {
+	height: 80%;
+}
+
+.userinfo {
+	background: #252933;
+	height: 100%;
+}
+
+.userinfo .content {
+	align-items: center;
+	display: flex;
+	padding: 16px;
+}
+
+.userinfo .content img {
+	border-radius: 60%;
+	width: 40px;
+	height: 40px;
+	margin-right: 8px;
+}
+
+.userinfo .content b {
+	font-size: 18px;
+}
 
 .chat .right-side {
 	height: 100vh;
@@ -158,6 +184,7 @@ button:hover {
 	width: 100%;
 	display: flex;
 	padding: 2px;
+	word-break: break-word;
 }
 
 .user-message:hover {
@@ -213,6 +240,12 @@ button:hover {
 .chat .group p {
 	color: silver;
 	font-size: 15px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	display: -webkit-box;
+	-webkit-line-clamp: 1;
+        line-clamp: 1; 
+	-webkit-box-orient: vertical;
 }
 
 .center {

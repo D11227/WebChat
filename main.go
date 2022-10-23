@@ -18,6 +18,7 @@ type Group struct {
 type User struct {
 	Id	  string		`json:"id"`
 	Username  string		`json:"username"`
+	Avatar    string		`json:"avatar"`
 	Conn	  *websocket.Conn	`json:"conn"`
 }
 
@@ -79,6 +80,7 @@ func ChatHandler(w http.ResponseWriter, r *http.Request) {
 func HandleLogin(conn *websocket.Conn, data map[string]interface{}) {
 	if userInfo[conn].Username == "~" {
 		userInfo[conn].Username = data["username"].(string)
+		userInfo[conn].Avatar = data["avatar"].(string)
 		fmt.Printf("User %v logged in.\n", userInfo[conn].Username)
 		conn.WriteJSON(map[string]string {
 			"what":	  "update-profile",
@@ -123,6 +125,15 @@ func HandleJoinGroup(conn *websocket.Conn, data map[string]interface{}) {
 			"group":    groups[index],
 		})
 	}
+
+	HandleSendMessage(conn, map[string]interface{} {
+		"type":		"welcome",
+		"msg":		"./images/welcome.gif",
+		"username":	userInfo[conn].Username,
+		"avatar":	userInfo[conn].Avatar,
+		"userId":	userInfo[conn].Id,
+		"id":		data["id"].(string),
+	})
 }
 
 func HandleLeaveGroup(conn *websocket.Conn, data map[string]interface{}) {
@@ -134,7 +145,7 @@ func HandleLeaveGroup(conn *websocket.Conn, data map[string]interface{}) {
 		return
 	}
 
-	memberIndex := -1	
+	memberIndex := -1
 	for i := range groups[index].Members {
 		if groups[index].Members[i].Id == userInfo[conn].Id {
 			memberIndex = i
@@ -162,6 +173,7 @@ func HandleLeaveGroup(conn *websocket.Conn, data map[string]interface{}) {
 		}
 
 	}
+	fmt.Println(groups)
 }
 
 func HandleSendMessage(conn *websocket.Conn, data map[string]interface{}) {
@@ -173,16 +185,19 @@ func HandleSendMessage(conn *websocket.Conn, data map[string]interface{}) {
 		conn.WriteJSON(map[string]string {
 			"what":	    "error",
 			"content":  "Group not found!",
-			"id": data["id"].(string),
+			"id":	    data["id"].(string),
 		})
 		return
 	}
 
 	for _, member := range groups[index].Members {
+		if data["type"] == "welcome" && member.Conn == conn { continue }
 		member.Conn.WriteJSON(map[string]string {
 			"what":		"update-message",
+			"type":		data["type"].(string),
 			"msg":		data["msg"].(string),
 			"username":	data["username"].(string),
+			"avatar":	data["avatar"].(string),
 			"id":		data["userId"].(string),
 		})
 	}
